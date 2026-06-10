@@ -37,12 +37,12 @@ exports.createRequest =
 
           reason
         });
-        await createAuditLog({
-          actor: req.user.id,
-          action: "ACCESS_REQUEST_CREATED",
-          entityType: "ACCESS_REQUEST",
-          entityId: request._id
-        });
+        // await createAuditLog({
+        //   actor: req.user.id,
+        //   action: "ACCESS_REQUEST_CREATED",
+        //   entityType: "ACCESS_REQUEST",
+        //   entityId: request._id
+        // });
 
       return res.status(201).json({
         success: true,
