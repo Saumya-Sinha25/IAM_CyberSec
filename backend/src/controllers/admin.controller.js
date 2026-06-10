@@ -106,12 +106,12 @@ exports.rejectRequest =
         "REJECTED";
 
         await request.save();
-        await createAuditLog({
-            actor: req.user.id,
-            action: "ADMIN_APPROVED",
-            entityType: "ACCESS_REQUEST",
-            entityId: request._id
-        });
+        // await createAuditLog({
+        //     actor: req.user.id,
+        //     action: "ADMIN_APPROVED",
+        //     entityType: "ACCESS_REQUEST",
+        //     entityId: request._id
+        // });
 
       return res.json({
         success: true,

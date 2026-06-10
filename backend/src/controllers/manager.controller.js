@@ -61,12 +61,12 @@ exports.getPendingRequests =
       "PENDING_ADMIN";
 
     await request.save();
-    await createAuditLog({
-      actor: req.user.id,
-      action: "MANAGER_APPROVED",
-      entityType: "ACCESS_REQUEST",
-      entityId: request._id
-    });
+    // await createAuditLog({
+    //   actor: req.user.id,
+    //   action: "MANAGER_APPROVED",
+    //   entityType: "ACCESS_REQUEST",
+    //   entityId: request._id
+    // });
 
     return res.json({
       success: true,
