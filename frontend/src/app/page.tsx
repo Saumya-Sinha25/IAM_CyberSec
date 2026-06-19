@@ -1,109 +1,77 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import api from "@/services/api";
+import DashboardCard from "@/components/DashboardCard";
 
-export default function LoginPage() {
-  const router = useRouter();
+export default function Dashboard() {
+  const [stats, setStats] =
+    useState<any>(null);
 
-  const [email, setEmail] =
-    useState("");
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res =
+          await api.get(
+            "/dashboard/stats"
+          );
 
-  const [password, setPassword] =
-    useState("");
-
-  const [loading, setLoading] =
-    useState(false);
-
-  const handleLogin = async (
-    e: React.FormEvent
-  ) => {
-    e.preventDefault();
-
-    try {
-      setLoading(true);
-
-      const res =
-        await api.post(
-          "/auth/login",
-          {
-            email,
-            password,
-          }
+        setStats(
+          res.data.stats
         );
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-      localStorage.setItem(
-        "token",
-        res.data.token
-      );
+    fetchStats();
+  }, []);
 
-      router.push(
-        "/dashboard"
-      );
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        "Login failed"
-      );
-
-    } finally {
-
-      setLoading(false);
-
-    }
-  };
+  if (!stats) {
+    return (
+      <div>
+        Loading...
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div>
+      <h1 className="text-4xl font-bold mb-8">
+        AccessFlow Dashboard
+      </h1>
 
-      <form
-        onSubmit={handleLogin}
-        className="w-full max-w-md space-y-4 border p-6 rounded-xl"
-      >
-
-        <h1 className="text-2xl font-bold">
-          AccessFlow
-        </h1>
-
-        <input
-          className="w-full border p-3 rounded"
-          placeholder="Email"
-          value={email}
-          onChange={(e) =>
-            setEmail(
-              e.target.value
-            )
-          }
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <DashboardCard
+          title="Resources"
+          value={stats.resources}
         />
 
-        <input
-          type="password"
-          className="w-full border p-3 rounded"
-          placeholder="Password"
-          value={password}
-          onChange={(e) =>
-            setPassword(
-              e.target.value
-            )
-          }
+        <DashboardCard
+          title="My Requests"
+          value={stats.myRequests}
         />
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full border p-3 rounded"
-        >
-          {loading
-            ? "Signing In..."
-            : "Sign In"}
-        </button>
+        <DashboardCard
+          title="Pending Manager"
+          value={stats.pendingManager}
+        />
 
-      </form>
+        <DashboardCard
+          title="Pending Admin"
+          value={stats.pendingAdmin}
+        />
 
+        <DashboardCard
+          title="Approved"
+          value={stats.approved}
+        />
+
+        <DashboardCard
+          title="Rejected"
+          value={stats.rejected}
+        />
+      </div>
     </div>
   );
 }

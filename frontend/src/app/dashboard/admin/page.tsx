@@ -2,6 +2,16 @@
 
 import { useEffect, useState } from "react";
 import api from "@/services/api";
+import StatusBadge from "@/components/StatusBadge";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function AdminPage() {
   const [requests, setRequests] = useState<any[]>([]);
@@ -25,13 +35,9 @@ export default function AdminPage() {
     fetchRequests();
   }, []);
 
-  const handleApprove = async (
-    requestId: string
-  ) => {
+  const handleApprove = async (requestId: string) => {
     try {
-      await api.put(
-        `/admin/approve/${requestId}`
-      );
+      await api.put(`/admin/approve/${requestId}`);
 
       alert("Request Approved");
 
@@ -41,13 +47,9 @@ export default function AdminPage() {
     }
   };
 
-  const handleReject = async (
-    requestId: string
-  ) => {
+  const handleReject = async (requestId: string) => {
     try {
-      await api.put(
-        `/admin/reject/${requestId}`
-      );
+      await api.put(`/admin/reject/${requestId}`);
 
       alert("Request Rejected");
 
@@ -58,80 +60,51 @@ export default function AdminPage() {
   };
 
   if (loading) {
-    return (
-      <div className="p-10">
-        Loading...
-      </div>
-    );
+    return <div className="p-10">Loading...</div>;
   }
 
   return (
-    <div className="p-10">
-      <h1 className="text-3xl font-bold mb-6">
-        Admin Queue
-      </h1>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>User</TableHead>
+          <TableHead>Resource</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Actions</TableHead>
+        </TableRow>
+      </TableHeader>
 
-      {requests.length === 0 ? (
-        <p>No pending admin requests.</p>
-      ) : (
-        <div className="space-y-4">
-          {requests.map((request) => (
-            <div
-              key={request._id}
-              className="border rounded-lg p-4"
-            >
-              <h2 className="text-xl font-bold">
-                {
-                  request.requestedBy
-                    ?.name
-                }
-              </h2>
+      <TableBody>
+        {requests.map((request) => (
+          <TableRow key={request._id}>
+            <TableCell>{request.requestedBy?.name}</TableCell>
 
-              <p>
-                Resource:{" "}
-                {
-                  request.resourceId
-                    ?.name
-                }
-              </p>
+            <TableCell>{request.resourceId?.name}</TableCell>
 
-              <p>
-                Reason:{" "}
-                {request.reason}
-              </p>
+            <TableCell>
+              <StatusBadge status={request.status} />
+            </TableCell>
 
-              <p>
-                Status:{" "}
-                {request.status}
-              </p>
-
-              <div className="flex gap-3 mt-4">
+            <TableCell>
+              <div className="flex gap-2">
                 <button
-                  className="border rounded px-4 py-2"
-                  onClick={() =>
-                    handleApprove(
-                      request._id
-                    )
-                  }
+                  className="border px-3 py-1 rounded"
+                  onClick={() => handleApprove(request._id)}
                 >
                   Approve
                 </button>
 
                 <button
-                  className="border rounded px-4 py-2"
-                  onClick={() =>
-                    handleReject(
-                      request._id
-                    )
-                  }
+                  className="border px-3 py-1 rounded"
+                  onClick={() => handleReject(request._id)}
                 >
                   Reject
                 </button>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }

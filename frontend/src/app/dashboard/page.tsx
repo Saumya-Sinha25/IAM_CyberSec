@@ -1,89 +1,78 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import api from "@/services/api";
+import DashboardCard from "@/components/DashboardCard";
+
+type Stats = {
+  resources: number;
+  myRequests: number;
+  pendingManager: number;
+  pendingAdmin: number;
+  approved: number;
+  rejected: number;
+};
 
 export default function Dashboard() {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] =
+    useState<Stats | null>(null);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchStats = async () => {
       try {
-        const res = await api.get("/auth/me");
+        const res = await api.get(
+          "/dashboard/stats"
+        );
 
-        console.log("User:", res.data);
-
-        setUser(res.data.user);
+        setStats(res.data.stats);
       } catch (error) {
         console.error(error);
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchProfile();
+    fetchStats();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="p-10">
-        Loading...
-      </div>
-    );
+  if (!stats) {
+    return <div>Loading...</div>;
   }
 
   return (
-    <div className="p-10">
-      <h1 className="text-4xl font-bold mb-6">
+    <div>
+      <h1 className="text-4xl font-bold mb-8">
         AccessFlow Dashboard
       </h1>
 
-      {user && (
-        <div className="border rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-2">
-            User Information
-          </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <DashboardCard
+          title="Resources"
+          value={stats.resources}
+        />
 
-          <p>
-            <strong>User ID:</strong> {user.id}
-          </p>
+        <DashboardCard
+          title="My Requests"
+          value={stats.myRequests}
+        />
 
-          <p>
-            <strong>Role:</strong> {user.role}
-          </p>
-        </div>
-      )}
+        <DashboardCard
+          title="Pending Manager"
+          value={stats.pendingManager}
+        />
 
-      <div className="flex flex-wrap gap-4">
-        <Link
-          href="/dashboard/resources"
-          className="border rounded px-4 py-2 hover:bg-gray-100"
-        >
-          Resources
-        </Link>
+        <DashboardCard
+          title="Pending Admin"
+          value={stats.pendingAdmin}
+        />
 
-        <Link
-          href="/dashboard/requests"
-          className="border rounded px-4 py-2 hover:bg-gray-100"
-        >
-          My Requests
-        </Link>
+        <DashboardCard
+          title="Approved"
+          value={stats.approved}
+        />
 
-        <Link
-          href="/dashboard/manager"
-          className="border rounded px-4 py-2 hover:bg-gray-100"
-        >
-        Manager Queue
-        </Link>
-              
-        <Link
-            href="/dashboard/admin"
-            className="border rounded px-4 py-2"
-        >
-        Admin Queue
-        </Link>
+        <DashboardCard
+          title="Rejected"
+          value={stats.rejected}
+        />
       </div>
     </div>
   );

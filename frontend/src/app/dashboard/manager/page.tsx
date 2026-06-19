@@ -2,6 +2,16 @@
 
 import { useEffect, useState } from "react";
 import api from "@/services/api";
+import StatusBadge from "@/components/StatusBadge";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function ManagerPage() {
   const [requests, setRequests] = useState<any[]>([]);
@@ -9,18 +19,11 @@ export default function ManagerPage() {
 
   const fetchRequests = async () => {
     try {
-      const res = await api.get(
-        "/manager/requests"
-      );
+      const res = await api.get("/manager/requests");
 
-      console.log(
-        "Manager Requests:",
-        res.data
-      );
+      console.log("Manager Requests:", res.data);
 
-      setRequests(
-        res.data.requests
-      );
+      setRequests(res.data.requests);
     } catch (error) {
       console.error(error);
     } finally {
@@ -32,17 +35,11 @@ export default function ManagerPage() {
     fetchRequests();
   }, []);
 
-  const handleApprove = async (
-    requestId: string
-  ) => {
+  const handleApprove = async (requestId: string) => {
     try {
-      await api.put(
-        `/manager/approve/${requestId}`
-      );
+      await api.put(`/manager/approve/${requestId}`);
 
-      alert(
-        "Request Approved"
-      );
+      alert("Request Approved");
 
       fetchRequests();
     } catch (error) {
@@ -50,17 +47,11 @@ export default function ManagerPage() {
     }
   };
 
-  const handleReject = async (
-    requestId: string
-  ) => {
+  const handleReject = async (requestId: string) => {
     try {
-      await api.put(
-        `/manager/reject/${requestId}`
-      );
+      await api.put(`/manager/reject/${requestId}`);
 
-      alert(
-        "Request Rejected"
-      );
+      alert("Request Rejected");
 
       fetchRequests();
     } catch (error) {
@@ -69,95 +60,51 @@ export default function ManagerPage() {
   };
 
   if (loading) {
-    return (
-      <div className="p-10">
-        Loading...
-      </div>
-    );
+    return <div className="p-10">Loading...</div>;
   }
 
   return (
-    <div className="p-10">
-      <h1 className="text-3xl font-bold mb-6">
-        Manager Queue
-      </h1>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>User</TableHead>
+          <TableHead>Resource</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Actions</TableHead>
+        </TableRow>
+      </TableHeader>
 
-      {requests.length === 0 ? (
-        <p>
-          No pending requests.
-        </p>
-      ) : (
-        <div className="space-y-4">
-          {requests.map(
-            (request) => (
-              <div
-                key={request._id}
-                className="border rounded-lg p-4"
-              >
-                <h2 className="text-xl font-bold">
-                  {
-                    request
-                      .requestedBy
-                      ?.name
-                  }
-                </h2>
+      <TableBody>
+        {requests.map((request) => (
+          <TableRow key={request._id}>
+            <TableCell>{request.requestedBy?.name}</TableCell>
 
-                <p>
-                  Resource:
-                  {" "}
-                  {
-                    request
-                      .resourceId
-                      ?.name
-                  }
-                </p>
+            <TableCell>{request.resourceId?.name}</TableCell>
 
-                <p>
-                  Reason:
-                  {" "}
-                  {
-                    request
-                      .reason
-                  }
-                </p>
+            <TableCell>
+              <StatusBadge status={request.status} />
+            </TableCell>
 
-                <p>
-                  Status:
-                  {" "}
-                  {
-                    request
-                      .status
-                  }
-                </p>
+            <TableCell>
+              <div className="flex gap-2">
+                <button
+                  className="border px-3 py-1 rounded"
+                  onClick={() => handleApprove(request._id)}
+                >
+                  Approve
+                </button>
 
-                <div className="flex gap-3 mt-4">
-                  <button
-                    className="border rounded px-4 py-2"
-                    onClick={() =>
-                      handleApprove(
-                        request._id
-                      )
-                    }
-                  >
-                    Approve
-                  </button>
-
-                  <button
-                    className="border rounded px-4 py-2"
-                    onClick={() =>
-                      handleReject(
-                        request._id
-                      )
-                    }
-                  >
-                    Reject
-                  </button>
-                </div>
+                <button
+                  className="border px-3 py-1 rounded"
+                  onClick={() => handleReject(request._id)}
+                >
+                  Reject
+                </button>
               </div>
-            )
-          )}
-        </div>
-      )}
-    </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
